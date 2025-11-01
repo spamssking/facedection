@@ -1,6 +1,6 @@
-Flask==3.0.3
-tensorflow==2.17.0
-opencv-python-headless==4.10.0.84
-numpy
-Pillow
-gunicorn
+Flask==2.3.6
+tensorflow==2.14.0
+opencv-python==4.8.1.78
+numpy==1.26.0
+pillow==10.1.0
+waitress==2.1.2
