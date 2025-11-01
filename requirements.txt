@@ -1,6 +1,7 @@
 Flask==2.3.3
-tensorflow==2.20.0
-numpy==1.26.2
+flask-cors==4.0.0
+tensorflow==2.13.0
+numpy==1.23.6
 opencv-python==4.8.1.78
 Pillow==10.1.0
 h5py==3.9.0
