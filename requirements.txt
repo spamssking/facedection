@@ -1,4 +1,4 @@
-Flask==2.3.6
+Flask==2.3.3
 tensorflow==2.14.0
 opencv-python==4.8.1.78
 numpy==1.26.0
