@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emotion Detection</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 50px;
+            background: #f0f2f5;
+        }
+
+        video, canvas, img {
+            border-radius: 8px;
+            margin-top: 10px;
+            max-width: 400px;
+        }
+
+        #emotion {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            display: inline-block;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Facial Emotion Recognition</h2>
+
+        <!-- Webcam Section -->
+        <video id="video" width="400" height="300" autoplay></video><br>
+        <button onclick="stopWebcam()">Stop Webcam</button>
+        <p id="emotion">Emotion: -</p>
+        <hr>
+
+        <!-- Upload Section -->
+        <h3>Or Upload an Image</h3>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required><br><br>
+            <button type="submit">Upload & Predict</button>
+        </form>
+
+        {% if filename %}
+        <h3>Result:</h3>
+        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image">
+        <p><strong>Predicted Emotion:</strong> {{ emotion }}</p>
+        {% elif emotion %}
+        <p><strong>{{ emotion }}</strong></p>
+        {% endif %}
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        let streaming = true;
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => console.error(err));
+
+        const canvas = document.createElement('canvas');
+
+        async function sendFrame() {
+            if (!streaming) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/jpeg');
+
+            try {
+                const res = await fetch('/predict_webcam', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataURL })
+                });
+                const result = await res.json();
+                document.getElementById('emotion').innerText = "Emotion: " + result.emotion;
+            } catch (err) {
+                console.error(err);
+            }
+            setTimeout(sendFrame, 1000); // repeat every 1 sec
+        }
+
+        video.addEventListener('play', sendFrame);
+
+        function stopWebcam() {
+            streaming = false;
+            const tracks = video.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    </script>
+</body>
+</html>
